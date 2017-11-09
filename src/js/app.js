@@ -1,19 +1,17 @@
-/*
-function addAll() {
-  return [...arguments].reduce((acc, num) => acc + num, 0);
-}
-
-const result = addAll(1, 2, 3, 4);
-console.log("result: ", result);
-*/
-
 import React, { Component } from "react";
 import { render } from "react-dom";
-// import "../css/style.css";
+import "../css/style.css";
+import Test from "./components/test";
 
 export default class Hello extends Component {
   render() {
-    return <h2>Hello !!!</h2>;
+    return (
+      <div>
+        <h2>Hello !!!</h2>
+        <br />
+        <Test />
+      </div>
+    );
   }
 }
 
