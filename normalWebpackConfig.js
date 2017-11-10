@@ -32,23 +32,11 @@ const ExtractTextPluginConfig = new ExtractTextPlugin({
   disable: false
 });
 
-// used to split specified vendor script
-const commonsChunkPluginConfig = new webpack.optimize.CommonsChunkPlugin({
-  name: "vendor",
-  midChunks: Infinity,
-  filename: "[name].[hash].js"
-});
-
 const base = {
-  entry: {
-    app: path.join(paths.JS, "app.js"),
-    vendor: ["react", "react-dom", "react-router"]
-  },
-
+  entry: path.join(paths.JS, "app.js"),
   output: {
     path: paths.DIST,
-    // filename: "bundle.js",
-    filename: "[name].[hash].js"
+    filename: "bundle.js"
   },
   module: {
     rules: [
@@ -59,10 +47,7 @@ const base = {
           {
             loader: "babel-loader"
           }
-        ],
-        query: {
-          cacheDirectory: true
-        }
+        ]
       },
       {
         test: /\.(css)$/,
@@ -90,7 +75,6 @@ const developmentConfig = {
   plugins: [
     HtmlWebpackPluginConfig,
     ExtractTextPluginConfig,
-    commonsChunkPluginConfig,
     new webpack.HotModuleReplacementPlugin()
   ]
 };
