@@ -1,18 +1,13 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import "../css/style.css";
-import Test from "./components/test";
+import Container from "../js/components/container";
 
-export default class Hello extends Component {
-  render() {
-    return (
-      <div>
-        <h2>Hello !!!</h2>
-        <br />
-        <Test />
-      </div>
-    );
-  }
-}
+const App = () => (
+  <Router>
+    <Container />
+  </Router>
+);
 
-render(<Hello />, document.getElementById("root"));
+render(<App />, document.getElementById("root"));

@@ -43,7 +43,8 @@ const base = {
   },
   output: {
     path: paths.DIST,
-    filename: "[name].[hash].js"
+    filename: "[name].[hash].js",
+    publicPath: "/"
   },
   module: {
     rules: [
