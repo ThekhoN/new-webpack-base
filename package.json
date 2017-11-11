@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "SET NODE_ENV='production' && webpack -p",
+    "clr-dist": "rd /s /q dist",
+    "build": "rd /s /q dist | SET NODE_ENV=production && webpack -p",
     "dev": "webpack-dev-server --open"
   },
   "author": "thekho ngaosathe",
