@@ -2,18 +2,9 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const webpack = require("webpack");
+const Autoprefixer = require("autoprefixer");
 
-/*
-const env = {
-  dev: process.env.NODE_ENV
-};
-
-const devServerConfig = {
-  contentBase: paths.SRC,
-  // Need historyApiFallback to be able to refresh on dynamic route
-  historyApiFallback: { disableDotRule: true }
-};
-*/
+const isProduction = process.env.NODE_ENV === "production";
 
 const paths = {
   DIST: path.resolve(__dirname, "dist"),
@@ -27,16 +18,22 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   inject: "body"
 });
 
+// used to split specified vendor script
+const CommonsChunkPluginConfig = new webpack.optimize.CommonsChunkPlugin({
+  name: "vendor",
+  midChunks: Infinity,
+  filename: "[name].[hash].js"
+});
+
 const ExtractTextPluginConfig = new ExtractTextPlugin({
   filename: "style.css",
   disable: false
 });
 
-// used to split specified vendor script
-const commonsChunkPluginConfig = new webpack.optimize.CommonsChunkPlugin({
-  name: "vendor",
-  midChunks: Infinity,
-  filename: "[name].[hash].js"
+const productionPlugin = new webpack.DefinePlugin({
+  "process.env": {
+    NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+  }
 });
 
 const base = {
@@ -44,10 +41,8 @@ const base = {
     app: path.join(paths.JS, "app.js"),
     vendor: ["react", "react-dom", "react-router"]
   },
-
   output: {
     path: paths.DIST,
-    // filename: "bundle.js",
     filename: "[name].[hash].js"
   },
   module: {
@@ -55,13 +50,11 @@ const base = {
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: "babel-loader"
+        use: {
+          loader: "babel-loader",
+          query: {
+            cacheDirectory: true
           }
-        ],
-        query: {
-          cacheDirectory: true
         }
       },
       {
@@ -84,15 +77,53 @@ const developmentConfig = {
   devtool: "cheap-module-inline-source-map",
   devServer: {
     contentBase: paths.SRC,
+    historyApiFallback: true,
+    stats: { colors: true },
     hot: true,
     inline: true
   },
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    CommonsChunkPluginConfig,
     HtmlWebpackPluginConfig,
-    ExtractTextPluginConfig,
-    commonsChunkPluginConfig,
-    new webpack.HotModuleReplacementPlugin()
+    ExtractTextPluginConfig
   ]
 };
 
-module.exports = Object.assign({}, base, developmentConfig);
+const productionConfig = {
+  devtool: "cheap-module-source-map",
+  plugins: [
+    HtmlWebpackPluginConfig,
+    productionPlugin,
+    new ExtractTextPlugin({
+      filename: "[name].[hash].css"
+    }),
+    CommonsChunkPluginConfig,
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: true,
+        warnings: false,
+        unused: true,
+        dead_code: true
+      },
+      output: {
+        comments: false
+      },
+      sourceMap: false
+    }),
+    new webpack.LoaderOptionsPlugin({
+      minimize: true,
+      debug: false,
+      options: {
+        context: __dirname,
+        postcss: [Autoprefixer({ browsers: ["last 3 versions"] })]
+      }
+    })
+  ]
+};
+
+module.exports = Object.assign(
+  {},
+  base,
+  isProduction === true ? productionConfig : developmentConfig
+);
